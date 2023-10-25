@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/svaronc/tinyapp/issues"
   },
-  "homepage": "https://github.com/svaronc/tinyapp#readme"
+  "homepage": "https://github.com/svaronc/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
