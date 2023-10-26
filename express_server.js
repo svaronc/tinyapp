@@ -5,16 +5,16 @@ const app = express();
 // Set the PORT constant to 8080, which will be used for the server to listen on
 const PORT = 8080;
 
-// Function to generate random strings (currently empty, implementation is missing)
+// Function to generate random strings
 function generateRamdomStrings() {
   const alphanumericData =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = '';
-    for (let i = 0; i < 6; id++) {
-      const random = Math.floor(Math.random() * alphanumericData.length);
-      result += alphanumericData[random];
-    }
-    return result;
+  let result = "";
+  for (let i = 0; i < 6; i++) {
+    const random = Math.floor(Math.random() * alphanumericData.length);
+    result += alphanumericData[random];
+  }
+  return result;
 }
 
 // Set the view engine of the express application to EJS
@@ -30,9 +30,11 @@ const urlDatabase = {
 app.use(express.urlencoded({ extended: true }));
 
 // Route to handle POST requests to /urls
-// Currently, it just logs the request body and responds with "Ok"
 app.post("/urls", (req, res) => {
+  let shortid = generateRamdomStrings();
+  urlDatabase[shortid] = req.body.longURL;
   console.log(req.body);
+  console.log(urlDatabase);
   res.send("Ok");
 });
 
