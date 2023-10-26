@@ -7,7 +7,14 @@ const PORT = 8080;
 
 // Function to generate random strings (currently empty, implementation is missing)
 function generateRamdomStrings() {
-  
+  const alphanumericData =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = '';
+    for (let i = 0; i < 6; id++) {
+      const random = Math.floor(Math.random() * alphanumericData.length);
+      result += alphanumericData[random];
+    }
+    return result;
 }
 
 // Set the view engine of the express application to EJS
