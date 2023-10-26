@@ -35,9 +35,12 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortid] = req.body.longURL;
   console.log(req.body);
   console.log(urlDatabase);
-  res.send("Ok");
+  res.redirect(`/urls/${shortid}`);
 });
-
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
+});
 // Route to display a page for creating new shortened URLs
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
