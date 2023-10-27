@@ -41,6 +41,10 @@ app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
+app.post("/urls/:id/edit", (req, res) => {
+  res.redirect(`/urls/${req.params.id}`);
+});
+
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
@@ -58,7 +62,11 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
-
+app.post("/urls/:id", (req, res) => {
+  console.log("body ---", req.body);
+  urlDatabase[req.params.id] = req.body.url;
+  res.redirect("/urls");
+});
 // Route to display a list of all shortened URLs
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase }; // Pass the entire URL database to the template
