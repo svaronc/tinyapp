@@ -74,6 +74,10 @@ app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.url;
   res.redirect("/urls");
 });
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls')
+});
 // Route to display a list of all shortened URLs
 app.get("/urls", (req, res) => {
   console.log("--->", req.cookies["username"]);

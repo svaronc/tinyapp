@@ -20,7 +20,9 @@
     </div>
     <% if (username) { %>
     <b>Logged in as: <%=username%>! </b>
-    <button type="submit" class="btn btn-outline-dark">Logout</button>
+    <form action="/logout" method="post">
+      <button type="submit" class="btn btn-outline-dark">Logout</button>
+    </form>
     <%} else {%>
     <form method="post" action="/login">
       <input type="text" name="username" placeholder="Username" />
