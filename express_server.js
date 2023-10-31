@@ -35,9 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/urls", (req, res) => {
   let shortid = generateRamdomStrings();
   urlDatabase[shortid] = req.body.longURL;
-  console.log(req.body);
-  console.log(urlDatabase);
-  res.redirect(`/urls/${shortid}`);
+  res.redirect(`/urls`);
 });
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
@@ -56,7 +54,8 @@ app.get("/u/:id", (req, res) => {
 });
 // Route to display a page for creating new shortened URLs
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  res.render("urls_new", templateVars);
 });
 
 // Dynamic route to display details of a specific shortened URL by its ID
@@ -74,9 +73,13 @@ app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.url;
   res.redirect("/urls");
 });
-app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls')
+app.get("/register", (req, res) => {
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  res.render("urls_registration", templateVars);
+});
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
 });
 // Route to display a list of all shortened URLs
 app.get("/urls", (req, res) => {
