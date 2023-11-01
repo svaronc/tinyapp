@@ -16,6 +16,8 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <a class="nav-item nav-link" href="/login">Login</a>
+        <a class="nav-item nav-link" href="/register">Signup</a>
       </div>
     </div>
     <% if (user) { %>
@@ -25,8 +27,8 @@
     </form>
     <%} else {%>
     <form method="post" action="/login">
-      <input type="text" name="username" placeholder="Username" />
-      <button type="submit" class="btn btn-outline-dark">Login</button>
+      <input type="text" name="username" placeholder="Username" style="display: none;"/>
+      <button type="submit" class="btn btn-outline-dark" style="display: none;">Login</button>
     </form>
     <% } %>
   </nav>

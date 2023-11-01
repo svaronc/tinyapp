@@ -80,7 +80,11 @@ app.get("/urls/new", (req, res) => {
   const templateVars = { urls: urlDatabase, user };
   res.render("urls_new", templateVars);
 });
-
+app.get('/login', (req, res) => {
+  const user = users[req.cookies["user_id"]];
+  const templateVars = { urls: urlDatabase, user };
+  res.render('urls_login', templateVars);
+})
 // Dynamic route to display details of a specific shortened URL by its ID
 app.get("/urls/:id", (req, res) => {
   const user = users[req.cookies["user_id"]];
