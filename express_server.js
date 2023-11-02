@@ -51,7 +51,6 @@ app.post("/register", (req, res) => {
       password,
     };
     console.log(users);
-    res.cookie("user_id", id);
     res.redirect("/urls");
   }
 });
@@ -68,7 +67,17 @@ app.post("/urls/:id/edit", (req, res) => {
   res.redirect(`/urls/${req.params.id}`);
 });
 app.post("/login", (req, res) => {
-  res.redirect("/urls");
+  let { email, password } = req.body;
+  let lookUser = getUserByEmail(email);
+  console.log("----> lookUser", lookUser);
+  if (lookUser === undefined) {
+    return res.status(403).send("Create an Account first");
+  } else if (email === lookUser.email && lookUser.password !== password) {
+    return res.status(403).send("Wrong password");
+  } else {
+    res.cookie("user_id", lookUser.id);
+    res.redirect("/urls");
+  }
 });
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
@@ -80,11 +89,11 @@ app.get("/urls/new", (req, res) => {
   const templateVars = { urls: urlDatabase, user };
   res.render("urls_new", templateVars);
 });
-app.get('/login', (req, res) => {
+app.get("/login", (req, res) => {
   const user = users[req.cookies["user_id"]];
   const templateVars = { urls: urlDatabase, user };
-  res.render('urls_login', templateVars);
-})
+  res.render("urls_login", templateVars);
+});
 // Dynamic route to display details of a specific shortened URL by its ID
 app.get("/urls/:id", (req, res) => {
   const user = users[req.cookies["user_id"]];
@@ -108,7 +117,7 @@ app.get("/register", (req, res) => {
 });
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 // Route to display a list of all shortened URLs
 app.get("/urls", (req, res) => {
