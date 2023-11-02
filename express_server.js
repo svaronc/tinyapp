@@ -102,7 +102,11 @@ app.get("/urls/new", (req, res) => {
 app.get("/login", (req, res) => {
   const user = users[req.cookies["user_id"]];
   const templateVars = { urls: urlDatabase, user };
-  res.render("urls_login", templateVars);
+  if (user) {
+    res.redirect("/urls");
+  } else {
+    res.render("urls_login", templateVars);
+  }
 });
 // Dynamic route to display details of a specific shortened URL by its ID
 app.get("/urls/:id", (req, res) => {
@@ -123,7 +127,11 @@ app.post("/urls/:id", (req, res) => {
 app.get("/register", (req, res) => {
   const user = users[req.cookies["user_id"]];
   const templateVars = { urls: urlDatabase, user };
-  res.render("urls_registration", templateVars);
+  if (user) {
+    res.redirect("/urls");
+  } else {
+    res.render("urls_registration", templateVars);
+  }
 });
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
@@ -135,9 +143,9 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, user }; // Pass the entire URL database to the template
   res.render("urls_index", templateVars);
 });
-app.get("/", (req,res) => {
+app.get("/", (req, res) => {
   res.render("urls");
-})
+});
 // Start the server on the defined PORT (8080 in this case)
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
