@@ -40,9 +40,15 @@ app.post("/register", (req, res) => {
   let { email, password } = req.body;
   let lookUser = getUserByEmail(email);
   if (req.body.email === "" || req.body.password === "") {
-    return res.status(400).send("Please enter a valid information");
+    return res
+      .status(400)
+      .send(
+        `Please enter a valid information <a href = "/register">Go back</a>`
+      );
   } else if (lookUser) {
-    return res.status(400).send("Email already exist");
+    return res
+      .status(400)
+      .send(`Email already exist <a href = "/login">Go login</a>`);
   } else {
     let id = generateRamdomStrings();
     users[id] = {
@@ -51,7 +57,7 @@ app.post("/register", (req, res) => {
       password,
     };
     console.log(users);
-    res.redirect("/urls");
+    res.redirect("/login");
   }
 });
 app.post("/urls", (req, res) => {
@@ -71,9 +77,13 @@ app.post("/login", (req, res) => {
   let lookUser = getUserByEmail(email);
   console.log("----> lookUser", lookUser);
   if (lookUser === undefined) {
-    return res.status(403).send("Create an Account first");
+    return res
+      .status(403)
+      .send(`Create an Account first <a href = "/register">Go signup</a>`);
   } else if (email === lookUser.email && lookUser.password !== password) {
-    return res.status(403).send("Wrong password");
+    return res
+      .status(403)
+      .send(`Wrong password  <a href = "/login">Go back</a>`);
   } else {
     res.cookie("user_id", lookUser.id);
     res.redirect("/urls");
@@ -125,7 +135,9 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, user }; // Pass the entire URL database to the template
   res.render("urls_index", templateVars);
 });
-
+app.get("/", (req,res) => {
+  res.render("urls");
+})
 // Start the server on the defined PORT (8080 in this case)
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
