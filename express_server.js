@@ -1,5 +1,6 @@
 // Require the express framework
 const express = require("express");
+const { getUserByEmail } = require("./helpers");
 // const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
@@ -27,9 +28,6 @@ function generateRamdomStrings() {
   return result;
 }
 
-function getUserByEmail(email) {
-  return Object.values(users).find((user) => user.email === email);
-}
 function urlsForUser(id) {
   const userUrls = {};
   for (let urlId in urlDatabase) {
@@ -63,7 +61,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/register", (req, res) => {
   let { email, password } = req.body;
   let hashedPassword = bcrypt.hashSync(password, 10);
-  let lookUser = getUserByEmail(email);
+  let lookUser = getUserByEmail(email, users);
   if (req.body.email === "" || req.body.password === "") {
     return res
       .status(400)
@@ -116,7 +114,7 @@ app.post("/urls/:id/edit", (req, res) => {
 });
 app.post("/login", (req, res) => {
   let { email, password } = req.body;
-  let lookUser = getUserByEmail(email);
+  let lookUser = getUserByEmail(email, users);
   console.log("----> lookUser", lookUser);
   if (lookUser === undefined) {
     return res
