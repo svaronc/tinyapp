@@ -1,10 +1,17 @@
 // Require the express framework
 const express = require("express");
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
 // Create an instance of the express application
 const app = express();
-app.use(cookieParser());
+// app.use(cookieParser());
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["testing"],
+  })
+);
 // Set the PORT constant to 8080, which will be used for the server to listen on
 const PORT = 8080;
 
@@ -80,10 +87,10 @@ app.post("/register", (req, res) => {
 });
 app.post("/urls", (req, res) => {
   let shortid = generateRamdomStrings();
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   urlDatabase[shortid] = {
     longURL: req.body.longURL,
-    userId: req.cookies["user_id"],
+    userId: req.session["user_id"],
   };
   if (user) {
     res.redirect(`/urls`);
@@ -95,10 +102,10 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.send("The short url that you are looking for do not exist");
   }
-  if (!req.cookies["user_id"]) {
+  if (!req.session["user_id"]) {
     return res.send("Please login first");
   }
-  if (urlDatabase[req.params.id].userId !== req.cookies["user_id"]) {
+  if (urlDatabase[req.params.id].userId !== req.session["user_id"]) {
     return res.send("You do not own this URL");
   }
   delete urlDatabase[req.params.id];
@@ -123,14 +130,14 @@ app.post("/login", (req, res) => {
       .status(403)
       .send(`Wrong password  <a href = "/login">Go back</a>`);
   } else {
-    res.cookie("user_id", lookUser.id);
+    req.session["user_id"] = lookUser.id;
     res.redirect("/urls");
   }
 });
 app.get("/u/:id", (req, res) => {
   const urlId = req.params.id;
   const longURL = urlDatabase[urlId].longURL;
-  const userId = req.cookies["user_id"];
+  const userId = req.session["user_id"];
   if (!userId) {
     return res.send("Please log in to acces this page.");
   }
@@ -144,7 +151,7 @@ app.get("/u/:id", (req, res) => {
 });
 // Route to display a page for creating new shortened URLs
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   const templateVars = { urls: urlDatabase, user };
   if (user) {
     res.render("urls_new", templateVars);
@@ -153,7 +160,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 app.get("/login", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   const templateVars = { urls: urlDatabase, user };
   if (user) {
     res.redirect("/urls");
@@ -163,7 +170,7 @@ app.get("/login", (req, res) => {
 });
 // Dynamic route to display details of a specific shortened URL by its ID
 app.get("/urls/:id", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   const templateVars = {
     id: req.params.id, // Get the id from the route parameter
     longURL: urlDatabase[req.params.id].longURL,
@@ -178,16 +185,16 @@ app.post("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.send("The short url that you are looking for do not exist");
   }
-  if (!req.cookies["user_id"]) {
+  if (!req.session["user_id"]) {
     return res.send("Please login first");
   }
-  if (urlDatabase[req.params.id].userId !== req.cookies["user_id"]) {
+  if (urlDatabase[req.params.id].userId !== req.session["user_id"]) {
     return res.send("You do not own this URL");
   }
   res.redirect("/urls");
 });
 app.get("/register", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   const templateVars = { urls: urlDatabase, user };
   if (user) {
     res.redirect("/urls");
@@ -196,13 +203,13 @@ app.get("/register", (req, res) => {
   }
 });
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 // Route to display a list of all shortened URLs
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies["user_id"]];
-  const userUrls = urlsForUser(req.cookies["user_id"]);
+  const user = users[req.session["user_id"]];
+  const userUrls = urlsForUser(req.session["user_id"]);
   const templateVars = { urls: userUrls, user }; // Pass the entire URL database to the template
   console.log("--->user urls", userUrls);
   console.log("database", urlDatabase);
