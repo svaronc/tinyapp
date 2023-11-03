@@ -1,6 +1,10 @@
 // Require the express framework
 const express = require("express");
-const { getUserByEmail } = require("./helpers");
+const {
+  getUserByEmail,
+  generateRamdomStrings,
+  urlsForUser,
+} = require("./helpers");
 // const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
@@ -16,28 +20,6 @@ app.use(
 // Set the PORT constant to 8080, which will be used for the server to listen on
 const PORT = 8080;
 
-// Function to generate random strings
-function generateRamdomStrings() {
-  const alphanumericData =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    const random = Math.floor(Math.random() * alphanumericData.length);
-    result += alphanumericData[random];
-  }
-  return result;
-}
-
-function urlsForUser(id) {
-  const userUrls = {};
-  for (let urlId in urlDatabase) {
-    if (urlDatabase[urlId].userId === id) {
-      userUrls[urlId] = urlDatabase[urlId].longURL;
-    }
-  }
-  return userUrls;
-}
-// Set the view engine of the express application to EJS
 app.set("view engine", "ejs");
 
 // Sample database holding shortened URLs and their corresponding long URLs
@@ -207,7 +189,7 @@ app.post("/logout", (req, res) => {
 // Route to display a list of all shortened URLs
 app.get("/urls", (req, res) => {
   const user = users[req.session["user_id"]];
-  const userUrls = urlsForUser(req.session["user_id"]);
+  const userUrls = urlsForUser(req.session["user_id"], urlDatabase);
   const templateVars = { urls: userUrls, user }; // Pass the entire URL database to the template
   console.log("--->user urls", userUrls);
   console.log("database", urlDatabase);
