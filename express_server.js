@@ -1,6 +1,7 @@
 // Require the express framework
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
 // Create an instance of the express application
 const app = express();
 app.use(cookieParser());
@@ -54,6 +55,7 @@ app.use(express.urlencoded({ extended: true }));
 // Route to handle POST requests to /urls
 app.post("/register", (req, res) => {
   let { email, password } = req.body;
+  let hashedPassword = bcrypt.hashSync(password, 10);
   let lookUser = getUserByEmail(email);
   if (req.body.email === "" || req.body.password === "") {
     return res
@@ -70,7 +72,7 @@ app.post("/register", (req, res) => {
     users[id] = {
       id,
       email,
-      password,
+      hashedPassword,
     };
     console.log(users);
     res.redirect("/login");
@@ -113,7 +115,10 @@ app.post("/login", (req, res) => {
     return res
       .status(403)
       .send(`Create an Account first <a href = "/register">Go signup</a>`);
-  } else if (email === lookUser.email && lookUser.password !== password) {
+  } else if (
+    email === lookUser.email &&
+    !bcrypt.compareSync(password, lookUser.hashedPassword)
+  ) {
     return res
       .status(403)
       .send(`Wrong password  <a href = "/login">Go back</a>`);
