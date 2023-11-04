@@ -28,7 +28,9 @@ Clone the repository:
 git clone https://github.com/svaronc/tinyapp.git
 cd tinyapp
 ```
+
 Install the dependencies
+
 ## Dependencies
 
 - Node.js
@@ -36,16 +38,21 @@ Install the dependencies
 - EJS
 - bcryptjs
 - cookie-session
+
 ```bash
  npm install
- ```
- Start the server
- ```bash
- npm start
- ```
- The server will start running on http://localhost:8080.
+```
+
+Start the server
+
+```bash
+npm start
+```
+
+The server will start running on http://localhost:8080.
 
 # Usage
+
 - **Register**: Create a new account to manage your URLs.
 - **Login**: Log into your account.
 - **Create**: Shorten a new URL by entering the long URL and receiving a short link.
@@ -53,6 +60,7 @@ Install the dependencies
 - **Redirect**: Use the short link to be redirected to the original long URL.
 
 # Routes
+
 - `GET /`: The root path that redirects to the login page or user's URL dashboard if logged in.
 - `GET /urls`: Shows the user's dashboard with all shortened URLs.
 - `GET /urls/new`: Provides a form for creating a new short URL.
@@ -68,17 +76,17 @@ Install the dependencies
 - `POST /logout`: Logs out the user.
 
 # Security
+
 Passwords are hashed using `bcryptjs`, and sessions are managed with `cookie-session` for added security.
 
 ## Final Product
+
 Welcome page
 
-!["Welcome page"](/docs/welcome.png)
+!["Welcome page"](https://github.com/svaronc/tinyapp/blob/master/docs/welcome.png?raw=true)
 List of user's URLs
 
-!["List of user's URLs"](/docs/urlsHome.png)
+!["List of user's URLs"](https://github.com/svaronc/tinyapp/blob/master/docs/urlsHome.png?raw=true)
 Create a new shortUrls
 
-!["Create a new shortUrls"](/docs/urlsnew.png)
-
-
+!["Create a new shortUrls"](https://github.com/svaronc/tinyapp/blob/master/docs/urlsnew.png?raw=true)
