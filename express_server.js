@@ -1,28 +1,23 @@
-// Require the express framework
 const express = require("express");
 const {
   getUserByEmail,
   generateRamdomStrings,
   urlsForUser,
 } = require("./helpers");
-// const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
-// Create an instance of the express application
 const app = express();
-// app.use(cookieParser());
 app.use(
   cookieSession({
     name: "session",
     keys: ["testing"],
   })
 );
-// Set the PORT constant to 8080, which will be used for the server to listen on
+const methodOverride = require("method-override");
 const PORT = 8080;
-
+app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 
-// Sample database holding shortened URLs and their corresponding long URLs
 const urlDatabase = {
   b2xVn2: {
     longURL: "http://www.lighthouselabs.ca",
@@ -36,10 +31,8 @@ const urlDatabase = {
 };
 const users = {};
 
-// Use express's urlencoded middleware to parse incoming requests with URL-encoded data
 app.use(express.urlencoded({ extended: true }));
 
-// Route to handle POST requests to /urls
 app.post("/register", (req, res) => {
   let { email, password } = req.body;
   let hashedPassword = bcrypt.hashSync(password, 10);
@@ -78,7 +71,7 @@ app.post("/urls", (req, res) => {
     return res.send(`<h1>Need to login first to be able to use the app</h1>`);
   }
 });
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.send("The short url that you are looking for do not exist");
   }
@@ -91,7 +84,7 @@ app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
-app.post("/urls/:id/edit", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   res.redirect(`/urls/${req.params.id}`);
 });
 app.post("/login", (req, res) => {
@@ -129,7 +122,6 @@ app.get("/u/:id", (req, res) => {
   }
   res.redirect(longURL);
 });
-// Route to display a page for creating new shortened URLs
 app.get("/urls/new", (req, res) => {
   const user = users[req.session["user_id"]];
   const templateVars = { urls: urlDatabase, user };
@@ -148,14 +140,12 @@ app.get("/login", (req, res) => {
     res.render("urls_login", templateVars);
   }
 });
-// Dynamic route to display details of a specific shortened URL by its ID
 app.get("/urls/:id", (req, res) => {
   const user = users[req.session["user_id"]];
   const templateVars = {
-    id: req.params.id, // Get the id from the route parameter
+    id: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
     user,
-    // Get the corresponding long URL from the database
   };
   res.render("urls_show", templateVars);
 });
@@ -186,11 +176,10 @@ app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/login");
 });
-// Route to display a list of all shortened URLs
 app.get("/urls", (req, res) => {
   const user = users[req.session["user_id"]];
   const userUrls = urlsForUser(req.session["user_id"], urlDatabase);
-  const templateVars = { urls: userUrls, user }; // Pass the entire URL database to the template
+  const templateVars = { urls: userUrls, user };
   console.log("--->user urls", userUrls);
   console.log("database", urlDatabase);
   if (user) {
@@ -202,7 +191,6 @@ app.get("/urls", (req, res) => {
 app.get("/", (req, res) => {
   res.render("urls");
 });
-// Start the server on the defined PORT (8080 in this case)
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
