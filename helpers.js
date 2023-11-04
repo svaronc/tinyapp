@@ -8,7 +8,7 @@ function getUserByEmail(email, database) {
   }
 }
 
-function generateRamdomStrings() {
+function generateRandomStrings() {
   const alphanumericData =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -30,4 +30,4 @@ function urlsForUser(id, database) {
 }
 //
 
-module.exports = { getUserByEmail, generateRamdomStrings, urlsForUser };
+module.exports = { getUserByEmail, generateRandomStrings, urlsForUser };
