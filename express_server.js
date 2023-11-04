@@ -35,6 +35,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post("/register", (req, res) => {
   let { email, password } = req.body;
+  const user = users[req.session["user_id"]];
+  const userUrls = urlsForUser(req.session["user_id"], urlDatabase);
+  const templateVars = { urls: userUrls, user };
   let hashedPassword = bcrypt.hashSync(password, 10);
   let lookUser = getUserByEmail(email, users);
   if (req.body.email === "" || req.body.password === "") {
@@ -44,9 +47,7 @@ app.post("/register", (req, res) => {
         `Please enter a valid information <a href = "/register">Go back</a>`
       );
   } else if (lookUser) {
-    return res
-      .status(400)
-      .send(`Email already exist <a href = "/login">Go login</a>`);
+    return res.status(400).render("urls_emailExist", templateVars);
   } else {
     let id = generateRamdomStrings();
     users[id] = {
@@ -61,8 +62,12 @@ app.post("/register", (req, res) => {
 app.post("/urls", (req, res) => {
   let shortid = generateRamdomStrings();
   const user = users[req.session["user_id"]];
+  let longURL = req.body.longURL.trim();
+  if (!longURL.startsWith("http://")) {
+    longURL = "http://" + longURL;
+  }
   urlDatabase[shortid] = {
-    longURL: req.body.longURL,
+    longURL: longURL,
     userId: req.session["user_id"],
   };
   if (user) {
@@ -88,20 +93,19 @@ app.put("/urls/:id", (req, res) => {
   res.redirect(`/urls/${req.params.id}`);
 });
 app.post("/login", (req, res) => {
+  const user = users[req.session["user_id"]];
+  const userUrls = urlsForUser(req.session["user_id"], urlDatabase);
+  const templateVars = { urls: userUrls, user };
   let { email, password } = req.body;
   let lookUser = getUserByEmail(email, users);
   console.log("----> lookUser", lookUser);
   if (lookUser === undefined) {
-    return res
-      .status(403)
-      .send(`Create an Account first <a href = "/register">Go signup</a>`);
+    return res.status(403).render("urls_createAccount", templateVars);
   } else if (
     email === lookUser.email &&
     !bcrypt.compareSync(password, lookUser.hashedPassword)
   ) {
-    return res
-      .status(403)
-      .send(`Wrong password  <a href = "/login">Go back</a>`);
+    return res.status(403).render("urls_wrongPass", templateVars);
   } else {
     req.session["user_id"] = lookUser.id;
     res.redirect("/urls");
@@ -142,16 +146,21 @@ app.get("/login", (req, res) => {
 });
 app.get("/urls/:id", (req, res) => {
   const user = users[req.session["user_id"]];
+  let longURL = urlDatabase[req.params.id].longURL;
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
+    longURL: longURL,
     user,
   };
   res.render("urls_show", templateVars);
 });
 app.post("/urls/:id", (req, res) => {
   console.log("body ---", req.body);
-  urlDatabase[req.params.id].longURL = req.body.url;
+  let longURL = req.body.url;
+  if (!longURL.startsWith("http://")) {
+    longURL = "http://" + longURL;
+  }
+  urlDatabase[req.params.id].longURL = longURL;
   if (!urlDatabase[req.params.id]) {
     return res.send("The short url that you are looking for do not exist");
   }
@@ -185,7 +194,7 @@ app.get("/urls", (req, res) => {
   if (user) {
     res.render("urls_index", templateVars);
   } else {
-    return res.send(`<p>Please login first before you use the app</p>`);
+    res.render("urls_loginFirst", templateVars);
   }
 });
 app.get("/", (req, res) => {
