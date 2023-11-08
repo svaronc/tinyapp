@@ -27,9 +27,6 @@ app.use(
     keys: ["testing"],
   })
 );
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`);
-});
 
 // In-Memory Database
 const urlDatabase = {
@@ -69,7 +66,6 @@ app.post("/register", (req, res) => {
     // Respond with an error indicating the email exists
     return res.status(400).render("urls_emailExist", templateVars);
   }
-
   // If the user does not exist, create a new user
   // Hash the password with bcrypt
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -84,9 +80,10 @@ app.post("/register", (req, res) => {
 
   // Logging the users object for debugging purposes
   console.log(users);
-
+  // Set the user ID in the session
+  req.session["user_id"] = id;
   // Redirect to the login page after successful registration
-  res.redirect("/login");
+  res.redirect("/urls");
 });
 
 // Route to handle the creation of shortened URLs
@@ -115,7 +112,7 @@ app.post("/urls", (req, res) => {
   };
 
   // Redirect the user to the main URL page after creation
-  res.redirect(`/urls`);
+  res.redirect(`/urls/${shortid}`);
 });
 
 // DELETE route handler to remove a URL
@@ -179,10 +176,7 @@ app.post("/login", (req, res) => {
     // If not, render the wrong password page with a 403 status
     return res.status(403).render("urls_wrongPass", templateVars);
   }
-
-  // Set the user ID in the session
   req.session["user_id"] = lookUser.id;
-
   // Redirect to the URLs index page
   res.redirect("/urls");
 });
@@ -243,13 +237,24 @@ app.get("/login", (req, res) => {
 // Route to display a specific URL entry
 app.get("/urls/:id", (req, res) => {
   const user = users[req.session["user_id"]];
-
+  const shortId = req.params.id;
   // Fetch the long URL from the database using the short URL ID
   let longURL = urlDatabase[req.params.id].longURL;
 
   // Only proceed if the long URL exists, otherwise return an error
   if (!longURL) {
     return res.status(404).send("The short URL does not exist");
+  }
+  if (!urlDatabase[shortId]) {
+    return res
+      .status(404)
+      .send("The short URL you are looking for does not exist.");
+  }
+  if (!user) {
+    return res.status(401).send("Please login first.");
+  }
+  if (urlDatabase[shortId].userId !== user.id) {
+    return res.status(403).send("You do not own this URL.");
   }
 
   // Prepare variables for rendering the view
@@ -345,4 +350,7 @@ app.get("/", (req, res) => {
   } else {
     res.render("urls");
   }
+});
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`);
 });
